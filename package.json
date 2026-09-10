@@ -1,0 +1,72 @@
+{
+  "name": "better-sqlite3-compat",
+  "version": "0.1.0",
+  "description": "The better-sqlite3 API on Node's built-in node:sqlite. No native module, no rebuilds: same Database, Statement, transactions, pragma, functions, aggregates, backup and serialize contract.",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=24.16"
+  },
+  "license": "MIT",
+  "author": "Tom Ryan",
+  "keywords": [
+    "sqlite",
+    "sqlite3",
+    "better-sqlite3",
+    "node:sqlite",
+    "database",
+    "compat",
+    "no-native",
+    "prebuild",
+    "electron",
+    "synchronous"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/api.test.mjs",
+    "test:parity": "node scripts/parity.mjs",
+    "test:types": "tsc -p test/tsconfig.json",
+    "test:pack": "node scripts/test-pack.mjs",
+    "verify": "npm run build && npm test && npm run test:parity && npm run test:types && npm run test:pack",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run verify"
+  },
+  "devDependencies": {
+    "chai": "4.5.0",
+    "fs-extra": "11.3.3",
+    "mocha": "11.7.5",
+    "typescript": "5.9.3",
+    "@types/node": "24.10.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atomics-hub/better-sqlite3-compat.git"
+  },
+  "homepage": "https://github.com/Atomics-hub/better-sqlite3-compat#readme",
+  "bugs": {
+    "url": "https://github.com/Atomics-hub/better-sqlite3-compat/issues"
+  }
+}

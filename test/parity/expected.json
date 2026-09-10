@@ -1,0 +1,72 @@
+{
+  "24": {
+    "02.entrypoints.js": [
+      "entrypoints \"before all\" hook for \"publishes a statically-bound entrypoint for the current platform\""
+    ],
+    "10.database.open.js": [
+      "new Database() should accept the \"nativeBinding\" option"
+    ],
+    "33.database.aggregate.js": [
+      "Database#aggregate() should accept an optional start value",
+      "Database#aggregate() should propagate exceptions thrown in the start() function",
+      "Database#aggregate() should propagate exceptions thrown in the step() function"
+    ],
+    "34.database.table.js": [
+      "Database#table() should throw an exception if the \"columns\" option is invalid",
+      "Database#table() should throw an exception if the \"parameters\" option is invalid",
+      "Database#table() should throw an exception if generator.length is invalid",
+      "Database#table() should register a virtual table and return the database object",
+      "Database#table() should enable the registered virtual table to be queried from SQL",
+      "Database#table() should infer parameters for the virtual table",
+      "Database#table() should accept explicit parameters for the virtual table",
+      "Database#table() should accept a large number of parameters for the virtual table",
+      "Database#table() should correctly handle arguments even when used out of order",
+      "Database#table() should correctly handle arguments that are constrained to other arguments",
+      "Database#table() should throw an exception if the database is busy",
+      "Database#table() should cause the database to become busy when querying the virtual table",
+      "Database#table() should cause the virtual table to throw when yielding an invalid value",
+      "Database#table() should allow arrays to be yielded as rows",
+      "Database#table() should allow objects to be yielded as rows",
+      "Database#table() should throw an exception if an invalid array is yielded",
+      "Database#table() should throw an exception if an invalid object is yielded",
+      "Database#table() should automatically assign rowids without affecting yielded objects",
+      "Database#table() should be driven by stmt.iterate() one row at a time",
+      "Database#table() should throw an exception if preparing a statement that uses an unsupported operator on a parameter",
+      "Database#table() should properly escape column and parameter names",
+      "Database#table() should not allow CREATE VIRTUAL TABLE statements by default",
+      "Database#table() should support CREATE VIRTUAL TABLE statements by accepting a factory function",
+      "Database#table() should correctly handle omitted arguments in any order",
+      "Database#table() should not call the generator function if any arguments are NULL",
+      "Database#table() should close a statement iterator that caused a virtual table to throw",
+      "Database#table() should not be able to affect bound buffers mid-query",
+      "Database#table() should correctly handle limit and offset clause",
+      "Database#table() should propagate exceptions thrown in the factory function",
+      "Database#table() should propagate exceptions thrown in the rows() function",
+      "Database#table() should propagate exceptions thrown due to yielding an invalid value",
+      "Database#table() should not affect external environment busy state",
+      "Database#table() should not affect external environment was_js_error state"
+    ],
+    "35.database.load-extension.js": [
+      "Database#loadExtension() \"before all\" hook for \"should throw an exception if a string argument is not given\""
+    ],
+    "36.database.backup.js": [
+      "Database#backup() should allow control over transfer sizes via the progress callback",
+      "Database#backup() should rollback an aborted backup file if it was not newly created",
+      "Database#backup() should delete an aborted backup file if it was newly created",
+      "Database#backup() should be aborted if the connection is closed during a backup"
+    ],
+    "40.bigints.js": [
+      "BigInts should get passed to virtual tables defined with the \"safeIntegers\" option",
+      "BigInts should respect the default setting on the database"
+    ],
+    "42.integrity.js": [
+      "integrity checks Database#table() while iterating (blocked)",
+      "integrity checks Database#table() while busy (blocked)",
+      "integrity checks Database#loadExtension() \"before all\" hook for \"while iterating (blocked)\""
+    ],
+    "50.misc.js": [
+      "miscellaneous supports LIMIT in DELETE statements",
+      "miscellaneous supports LIMIT in UPDATE statements"
+    ]
+  }
+}
