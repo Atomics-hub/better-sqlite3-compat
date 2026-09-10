@@ -23,6 +23,7 @@ Every other behavior exercised by the suite matches: argument validation classes
 - Kysely 0.29 `SqliteDialect({database: new Database(file)})`: inserts, updates, aggregates, raw SQL, streaming, transactions and rollback.
 - Drizzle ORM 0.45 `drizzle({client: new Database(file)})`: inserts with `RETURNING`, updates, transactions and rollback, blobs.
 - Knex 3.3 `client: 'better-sqlite3'` with `npm install better-sqlite3@npm:better-sqlite3-compat`: schema builder, CRUD, transactions, raw queries.
+- Prisma 7.10 with `@prisma/adapter-better-sqlite3` 7.10 and the same alias: nested create, relation filters, count, array transactions, raw queries (`prisma-client` generator, Node type stripping).
 
 ## Deviations
 

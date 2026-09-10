@@ -29,7 +29,7 @@ Same `Database`, `Statement`, `SqliteError`, transactions, pragma, user function
 npm install better-sqlite3@npm:better-sqlite3-compat
 ```
 
-Verified with Kysely 0.29, Drizzle ORM 0.45 and Knex 3.3 (see [docs/compatibility.md](docs/compatibility.md)).
+Verified with Kysely 0.29, Drizzle ORM 0.45, Knex 3.3 and Prisma 7.10 through `@prisma/adapter-better-sqlite3` (see [docs/compatibility.md](docs/compatibility.md)). Electron 41 and later ship Node 24.18+, so Electron apps get the same API with no `electron-rebuild` step.
 
 ## How compatible
 
