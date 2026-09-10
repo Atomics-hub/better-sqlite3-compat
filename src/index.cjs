@@ -261,11 +261,11 @@ class Statement {
   }
   _execute(kind, bindings) {
     const args = this._callArgs(bindings);
-    try { this._prepareMode(); return attempt(() => this._native[kind](...args)); }
+    try { this._prepareMode(); const out = attempt(() => this._native[kind](...args)); this.database._afterSuccess(); return out; }
     catch (err) {
       if (!(err instanceof RangeError) || !/too large to be represented as a JavaScript number/.test(err.message) || this._safeIntegers) throw err;
       this._native.setReadBigInts(true); this._appliedSafeIntegers = true;
-      try { const out = attempt(() => this._native[kind](...args)); return kind === 'all' ? out.map(r => lossyRow(r)) : lossyRow(out); }
+      try { const out = attempt(() => this._native[kind](...args)); this.database._afterSuccess(); return kind === 'all' ? out.map(r => lossyRow(r)) : lossyRow(out); }
       finally { this._native.setReadBigInts(false); this._appliedSafeIntegers = false; }
     }
   }
@@ -376,12 +376,34 @@ function expandRow(values, columns) {
   columns.forEach((c, k) => { const ns = c.table == null ? '$' : c.table; (out[ns] ??= {})[c.name] = convertValue(values[k]); });
   return out;
 }
+function skipLeadingTrivia(sql) {
+  let i = 0;
+  const n = sql.length;
+  while (i < n) {
+    const c = sql.charCodeAt(i);
+    if (c === 32 || (c >= 9 && c <= 13)) { i++; continue; }
+    if (c === 45 && sql.charCodeAt(i + 1) === 45) {
+      const end = sql.indexOf('\n', i + 2);
+      if (end === -1) return n;
+      i = end + 1;
+      continue;
+    }
+    if (c === 47 && sql.charCodeAt(i + 1) === 42) {
+      const end = sql.indexOf('*/', i + 2);
+      if (end === -1) return n;
+      i = end + 2;
+      continue;
+    }
+    break;
+  }
+  return i;
+}
 function leadingKeyword(sql) {
-  const m = sql.replace(/^(\s|--[^\n]*(\n|$)|\/\*[\s\S]*?\*\/)+/, '').match(/^[A-Za-z]+/);
+  const m = sql.slice(skipLeadingTrivia(sql)).match(/^[A-Za-z]+/);
   return m ? m[0] : '';
 }
 function isReadonlySql(sql) {
-  const first = sql.replace(/^(\s|--[^\n]*\n|\/\*[\s\S]*?\*\/)+/, '').match(/^([A-Za-z]+)(?:\s+([A-Za-z]+))?/);
+  const first = sql.slice(skipLeadingTrivia(sql)).match(/^([A-Za-z]+)(?:\s+([A-Za-z]+))?/);
   if (!first) return true;
   const a = first[1].toUpperCase(), b = (first[2] || '').toUpperCase();
   if (a === 'SELECT' || a === 'EXPLAIN' || a === 'VALUES' || a === 'COMMIT' || a === 'END' || a === 'ROLLBACK' || a === 'RELEASE' || a === 'SAVEPOINT') return true;
@@ -428,8 +450,15 @@ function Database(filenameGiven, options) {
     attempt(() => native.deserialize(buffer, { readOnly: readonly }));
     if (readonly) attempt(() => native.exec('PRAGMA query_only = 1'));
   }
+  // better-sqlite3 opens with cache_size = -16000. The pragma needs a shared lock, so it is tried without waiting; when
+  // another connection holds an exclusive lock at open time it is applied after the first successful statement instead.
   let cachePending = true;
-  try { native.exec('PRAGMA cache_size = -16000'); cachePending = false; } catch {}
+  try {
+    native.exec('PRAGMA busy_timeout = 0');
+    try { native.exec('PRAGMA cache_size = -16000'); cachePending = false; } catch {}
+  } finally {
+    attempt(() => native.exec(`PRAGMA busy_timeout = ${timeout}`));
+  }
   Object.defineProperties(this, {
     _native: { value: native, writable: true },
     _verbose: { value: verbose },
@@ -451,7 +480,7 @@ Object.defineProperties(Database.prototype, {
   inTransaction: { get() { return this._open && this._native.isTransaction; }, enumerable: true },
 });
 const proto = Database.prototype;
-proto._applyDefaults = function () { if (this._cachePending) { try { this._native.exec('PRAGMA cache_size = -16000'); this._cachePending = false; } catch {} } };
+proto._afterSuccess = function () { if (this._cachePending) { this._cachePending = false; try { this._native.exec('PRAGMA cache_size = -16000'); } catch { this._cachePending = true; } } };
 proto._totalChanges = function () { if (!this._totals) this._totals = this._native.prepare('SELECT total_changes()'); this._totals.setReturnArrays(true); return this._totals.get()[0]; };
 function checkOpen(db) { if (!db.open) throw closedError(); }
 function checkIdle(db) { checkOpen(db); if (db._unsafe) return; if (db._busy) throw busyError(); if (db._iterators) throw busyError(); }
@@ -459,7 +488,6 @@ function checkNotBusy(db) { checkOpen(db); if (db._unsafe) return; if (db._busy)
 
 proto.prepare = function prepare(sql) {
   checkNotBusy(this);
-  this._applyDefaults();
   if (typeof sql !== 'string') throw new TypeError('Expected first argument to be a string');
   const info = scan(sql);
   if (info.statements === 0) throw new RangeError('The supplied SQL string contains no statements');
@@ -468,12 +496,11 @@ proto.prepare = function prepare(sql) {
 };
 proto.exec = function exec(sql) {
   checkIdle(this);
-  this._applyDefaults();
   if (typeof sql !== 'string') throw new TypeError('Expected first argument to be a string');
   const verbose = this._verbose;
   if (verbose) for (const piece of splitStatements(sql)) verbose(piece);
   this._busy++;
-  try { attempt(() => this._native.exec(sql)); } finally { this._busy--; }
+  try { attempt(() => this._native.exec(sql)); this._afterSuccess(); } finally { this._busy--; }
   return this;
 };
 function splitStatements(sql) {

@@ -35,6 +35,7 @@ Every other behavior exercised by the suite matches: argument validation classes
 - `nativeBinding` is ignored.
 - `serialize()` and `new Database(buffer)` need Node 24.16 / 26.1.
 - Node 26.8's `sqlite.backup()` only completes when the event loop is woken; the package keeps a short interval alive until the backup settles.
+- better-sqlite3 sets `PRAGMA cache_size = -16000` when the connection opens. This package does the same without waiting on the busy timeout; if another connection holds an exclusive lock at that moment, the pragma is applied after the first successful statement instead.
 
 ## Performance
 
