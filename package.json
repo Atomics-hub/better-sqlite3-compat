@@ -51,11 +51,11 @@
     "prepublishOnly": "npm run verify"
   },
   "devDependencies": {
+    "@types/node": "24.10.1",
     "chai": "4.5.0",
     "fs-extra": "11.3.3",
-    "mocha": "11.7.5",
-    "typescript": "5.9.3",
-    "@types/node": "24.10.1"
+    "mocha": "^12.0.0",
+    "typescript": "5.9.3"
   },
   "publishConfig": {
     "access": "public",
