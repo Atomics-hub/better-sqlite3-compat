@@ -33,7 +33,7 @@ Verified with Kysely 0.29, Drizzle ORM 0.45 and Knex 3.3 (see [docs/compatibilit
 
 ## How compatible
 
-better-sqlite3's own test suite runs unchanged in this repository's CI. Node 24: **274 of 321** tests pass. Of the 47 that do not, 33 need virtual tables (`db.table()`), 4 need per-step control of the backup transfer rate, 2 need `DELETE … LIMIT`/`UPDATE … LIMIT`, and 4 need the native prebuild or a compiled test extension. The remaining handful are edge cases listed in [docs/compatibility.md](docs/compatibility.md). The only other compatibility package on npm passes 29.
+better-sqlite3's own test suite runs unchanged in this repository's CI. On Node 24 and 26, **274 of the 321 tests that run** pass. Of the 47 that do not, 37 need virtual tables (`db.table()`, including the virtual-table cases in the BigInt and integrity files), 4 need per-step control of the backup transfer rate, 2 need `DELETE … LIMIT`/`UPDATE … LIMIT`, 1 checks the `nativeBinding` build path, and 3 are aggregate edge cases listed in [docs/compatibility.md](docs/compatibility.md). Eleven further tests in three blocks (native entrypoints and extension loading) run in neither configuration because their setup hooks need the native build directory or a compiled test extension. The only other compatibility package on npm passes 29.
 
 ## What is different
 

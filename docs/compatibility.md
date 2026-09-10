@@ -2,18 +2,18 @@
 
 ## Method
 
-better-sqlite3 13.0.3's test suite (`test/parity/better-sqlite3`, MIT, unmodified) is run one file at a time against this package by `scripts/parity.mjs`. The expectations in `test/parity/expected.json` list the tests known to fail per Node major line; CI fails on any additional failure or if fewer than 270 tests pass. The same suite passes 320 of 321 on better-sqlite3 itself (the one remaining test needs the native prebuild layout).
+better-sqlite3 13.0.3's test suite (`test/parity/better-sqlite3`, MIT, unmodified) is run one file at a time against this package by `scripts/parity.mjs`. The expectations in `test/parity/expected.json` list the tests known to fail per Node major line; CI fails on any additional failure or if fewer than 270 tests pass. The same suite passes 320 of those 321 tests on better-sqlite3 itself (the remaining test needs the native prebuild layout). Eleven tests in three blocks (`02.entrypoints`, `35.database.load-extension` and the `loadExtension` block of `42.integrity`) are skipped by failing setup hooks in both configurations because they need the native build directory or a compiled test extension.
 
-## Result (Node 24)
+## Result (Node 24 and 26)
 
-274 of 321 tests pass. The 47 failures group as follows.
+274 of 321 tests pass. `expected.json` lists 50 entries, the 47 failing tests plus the 3 failing hooks, grouped as follows.
 
 | group | tests | reason |
 |---|---:|---|
-| virtual tables (`34.database.table`, plus vtab cases in `40.bigints` and `42.integrity`) | 36 | node:sqlite has no virtual-table API; `db.table()` throws `TypeError` |
+| virtual tables (`34.database.table`, plus vtab cases in `40.bigints` and `42.integrity`) | 37 | node:sqlite has no virtual-table API; `db.table()` throws `TypeError` |
 | backup transfer-rate control (`36.database.backup`) | 4 | node:sqlite fixes the page rate when the backup starts; the progress callback cannot change or pause it |
 | `DELETE`/`UPDATE … LIMIT` (`50.misc`) | 2 | Node's SQLite is built without `SQLITE_ENABLE_UPDATE_DELETE_LIMIT` |
-| native prebuild and compiled test extension (`02.entrypoints`, `10.database.open` nativeBinding, `35.database.load-extension`, `42.integrity` loadExtension hook) | 4 | not applicable without a native addon |
+| native prebuild and compiled test extension (`10.database.open` nativeBinding test; setup hooks of `02.entrypoints`, `35.database.load-extension` and the `42.integrity` loadExtension block) | 4 | not applicable without a native addon; the three hooks skip eleven tests |
 | aggregate edge cases (`33.database.aggregate`) | 3 | node:sqlite calls `start()` once more than better-sqlite3 in one window-function case and converts an `undefined` accumulator to `NULL`; one exception-propagation case inside a window frame |
 
 Every other behavior exercised by the suite matches: argument validation classes and messages, named/anonymous binding rules, `SqliteError` codes, `changes`/`lastInsertRowid` semantics, iteration and busy-connection protections, transactions and savepoints, pragma, explain, checkpoint, functions, aggregates and window functions, serialize/deserialize, backup completion and progress reporting, verbose logging including the 32-byte parameter truncation, safe integers, unsafe mode, worker threads and at-exit behavior.
